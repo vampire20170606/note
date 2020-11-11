@@ -1,0 +1,182 @@
+型别推导
+====================
+
+C++98 仅有一套型别推导规则，即函数模板实参推导；C++11 增加了两套规则，即 ``auto`` 和
+ ``decltype``， C++14 增加了decltype(auto) .
+
+函数模板型别推导
+-----------------------
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(ParamType param)
+
+
+    f(expr) // 从 expr 来推导 T 和 ParamType 的型别
+
+上述代码片段设计三个型别， ``expr`` 的型别、``T`` 的型别以及 ``ParamType`` 的型别。
+``T`` 和 ``ParamType`` 这两个型别往往不一样，以下分三种情况来讨论型别推导规则。
+
+情况1：ParamType 是指针或者引用，但不是万能引用
++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. 若 expr 具有引用类型，先忽略引用部分；
+2. 然后，对 expr 的型别和 ParamType 的型别执行模式匹配，来决定 T 的型别。
+
+.. code-block:: c++
+
+
+    #include <iostream>
+    #include <typeinfo>
+
+    template<typename T>
+    struct TypePrinter
+    {
+        static void print() {
+            std::cout << typeid(T).name() << "\n";
+        }
+    };
+
+    template<typename T>
+    struct TypePrinter<T const>
+    {
+        static void print() {
+            std::cout << "<const> ";
+            TypePrinter<T>::print();
+        }
+    };
+
+    template<typename T>
+    struct TypePrinter<T &>
+    {
+        static void print() {
+            std::cout << "<lvalue reference> ";
+            TypePrinter<T>::print();
+        }
+    };
+
+    template<typename T>
+    struct TypePrinter<T &&>
+    {
+        static void print() {
+            std::cout << "<rvalue reference> ";
+            TypePrinter<T>::print();
+        }
+    };
+
+    template<typename T>
+    struct TypePrinter<T *>
+    {
+        static void print() {
+            std::cout << "<pointer> ";
+            TypePrinter<T>::print();
+        }
+    };
+
+    template<typename T>
+    void f(T& param) {
+        TypePrinter<T>::print();
+    }
+
+    int main(int argc, char *argv[])  {
+        int x = 27;
+        const int cx = x;
+        const int&rx = x;
+        f(x);  // T => int, ParamType => int&
+        f(cx); // T => const int, ParamType => const int&
+        f(rx); // T => const int, ParamType => const int&
+    }
+
+ParamType 添加CV修饰符时的类型推导。
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(const T& param) {
+        TypePrinter<T>::print();
+    }
+
+    int main(int argc, char *argv[])  {
+        int x = 27;
+        const int cx = x;
+        const int&rx = x;
+        f(x);  // T => int, ParamType => int&
+        f(cx); // T => int, ParamType => const int&
+        f(rx); // T => int, ParamType => const int&
+    }
+
+指针的型别推导与引用一致。
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(T* param) {
+        TypePrinter<T>::print();
+    }
+
+    int main(int argc, char *argv[])  {
+        int x = 27;
+        int *px = &x;
+        const int*cpx = &x;
+        f(px); // T => int, ParamType => int*
+        f(cpx); // T => const int, ParamType => const int*
+    }
+
+
+情况2：ParamType 是万能引用
++++++++++++++++++++++++++++++++++++++++++++++++
+
+1. 如果 expr 是左值， T 和 ParamType 都会被推导为左值引用。
+2. 如果 expr 是右值，则应用规则情况1中的规则
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(T&& param);
+
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(T&& param) {
+        TypePrinter<T>::print();
+    }
+
+    int main(int argc, char *argv[])  {
+        int x = 27;
+        const int cx = x;
+        const int& rx = x;
+        f(x); // T => int&, ParamType => int&
+        f(cx); // T => const int&, ParamType => const int&
+        f(rx); // T => const int&, ParamType => const int&
+        f(3); // T => int, ParamType => int&&
+    }
+
+情况3：ParamType 既非指针也非引用
++++++++++++++++++++++++++++++++++++++++++++++++
+
+此时我们处理的是按值传递，所以 param 将会是传入对象的一个副本，即一个全新的对象。
+所以在进行类型推导的时候将忽略 expr 型别的引用、CV修饰符属性。
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(T param); // param 按值传递
+
+.. code-block:: c++
+
+    template<typename T>
+    void f(T param) {
+        TypePrinter<T>::print();
+    }
+
+    int main(int argc, char *argv[])  {
+        int x = 27;
+        const int cx = x;
+        const int& rx = x;
+        f(x);
+        f(cx);
+        f(rx);
+        f(3);
+    }
