@@ -76,7 +76,7 @@ std::move 和 std::forward
     dispatch("hello"); // match non-integer 
     dispatch('a'); // match integer
 
-    // std::enable_if
+    // std::enable_if, SFINAE
     void dispatch(int )
     {
         std::cout << "match integer.\n";
@@ -91,3 +91,33 @@ std::move 和 std::forward
 
     dispatch("hello"); // match non-integer 
     dispatch('a'); // match integer
+
+引用折叠
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: c++
+
+    template<typename T>
+    T&& forward(std::remove_reference_t<T>& param)
+    {
+        return static_cast<T&&>(param)
+    }
+
+    // 引用折叠发生的四种语境
+
+    // 1. 模板实例化
+    template<typename T>
+    T&& forward(std::remove_reference_t<T>& param)
+    {
+        return static_cast<T&&>(param)
+    }
+
+    // 2. auto 型别生成
+    auto&& a = 10; // auto => int, decltype(a) => int&&
+
+    // 3. typedef和using的别名声明
+    template<typename T>
+    using type = T&&;
+
+    // 4. decltype
+    decltype(10)&& mn = 10;
