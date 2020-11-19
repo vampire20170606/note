@@ -1,4 +1,4 @@
-Effective Modern C++ 笔记
+Effective Modern C++ 读书笔记
 =================================
 
 .. toctree::
