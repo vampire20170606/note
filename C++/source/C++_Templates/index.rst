@@ -5,3 +5,4 @@ C++ Templates 读书笔记
    :maxdepth: 2
 
    Function Templates
+   Class Templates
