@@ -6,4 +6,5 @@ C++ Templates 读书笔记
 
    Function Templates
    Class Templates
+   Nontype Template Parameters
    Variadic Templates
