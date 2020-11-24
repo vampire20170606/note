@@ -55,7 +55,7 @@ ptr 是一个指向 T::SubType 的指针。
     };
 
     template<typename T>
-    class Derived： public Base<T> {
+    class Derived : public Base<T> {
     public:
         void foo() {
             bar(); // 调用外部的 bar 或者报错
