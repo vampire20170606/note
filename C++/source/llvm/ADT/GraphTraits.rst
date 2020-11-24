@@ -132,16 +132,16 @@ traversChild 接口，首先从栈中弹出待遍历的节点，然后一直 tra
     :linenos:
 
     void traverseChild() {
-    // while 条件表明当前节点已经没有子节点，作为当前后序遍历的节点
-    while (VisitStack.back().second != GT::child_end(VisitStack.back().first)) {
-      NodeRef BB = *VisitStack.back().second++;
-      if (this->insertEdge(Optional<NodeRef>(VisitStack.back().first), BB)) {
-        // 当图中存在环的时候，避免重复遍历
-        // If the block is not visited...
-        VisitStack.push_back(std::make_pair(BB, GT::child_begin(BB)));
-      }
+        // while 条件表明当前节点已经没有子节点，作为当前后序遍历的节点
+        while (VisitStack.back().second != GT::child_end(VisitStack.back().first)) {
+        NodeRef BB = *VisitStack.back().second++;
+            if (this->insertEdge(Optional<NodeRef>(VisitStack.back().first), BB)) {
+                // 当图中存在环的时候，避免重复遍历
+                // If the block is not visited...
+                VisitStack.push_back(std::make_pair(BB, GT::child_begin(BB)));
+            }
+        }
     }
-  }
 
 提供 begin 和 end 静态方法构建迭代器。
 

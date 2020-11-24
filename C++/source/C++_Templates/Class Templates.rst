@@ -59,6 +59,7 @@
 
 .. code-block:: c++
     :linenos:
+    
     template<typename T>
     class Stack {
         ...

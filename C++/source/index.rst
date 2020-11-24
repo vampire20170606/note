@@ -11,6 +11,7 @@
 
    Effective_Modern_C++/index
    C++_Templates/index
+   llvm/index
 
 Indices and tables
 ==================

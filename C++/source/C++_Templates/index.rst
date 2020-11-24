@@ -6,3 +6,4 @@ C++ Templates 读书笔记
 
    Function Templates
    Class Templates
+   Variadic Templates
