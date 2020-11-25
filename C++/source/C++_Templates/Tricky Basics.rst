@@ -169,3 +169,143 @@ ptr 是一个指向 T::SubType 的指针。
 
 ``.template`` （或者 ``->template``、``::template``）仅在模板内部使用，并且仅在某个对象依赖于模板
 参数且调用该对象的某个成员方法。
+
+泛型 Lambdas 和成员模板
+-------------------------------
+
+C++14 引入的泛型 Lambdas 是成员模板的简捷方式。
+
+.. code-block:: c++
+    :linenos:
+
+    // C++14 引入的泛型lambdas
+    [](auto x, auto y) {
+        return x + y;
+    }
+
+    // 与泛型lambda等价的匿名类
+    class SimpleCompilerSpecificName {
+    public:
+        SimpleCompilerSpecificName() = default;
+
+        template<typename T1, typename T2>
+        auto operator()(T1 x, T2 y) const {
+            return x + y; 
+        } 
+    }
+
+变量模板
+===============
+
+从 C++14 开始，变量也可以使用特定的型别进行参数化。这个就被称为变量模板。
+
+.. code-block:: c++
+
+    // 所有的模板都不能在函数和块作用域进行声明和定义
+    template<typename T>
+    constexpr T pi{3.14};
+
+    std::cout << pi<double> << "\n";
+    std::cout << pi<float> << "\n";
+
+    // ==== header.hpp
+    template<typename T>
+    T val{};
+
+    // ==== translation unit 1:
+    #include "header.hpp"
+
+    int main()
+    {
+        val<long> = 42;
+        print();
+    }
+
+    // ==== translation unit 2:
+    #include "header.hpp"
+
+    void print()
+    {
+        std::cout << val<long> << "\n"; // OK， 输出 42
+    }
+
+    // 默认参数
+    template<typename T = long double>
+    constexpr T pi{3.14};
+
+    std::cout << pi<> << "\n";
+    std::cout << pi<float> << "\n";
+
+    // 非型别模板参数
+    template<int N>
+    std::array<int, N> arr{}
+
+    template<auto N>
+    constexpr decltype(N) val = N;
+
+    std::cout << val<'c'> << "\n";
+    arr<10>[0] = 42;
+
+数据成员的变量模板
+-------------------------
+
+变量模板一个比较有用的应用就是表示类模板静态成员变量或者枚举常量。
+
+.. code-block:: c++
+
+    template<typename T>
+    class MyClass {
+    public:
+        static constexpr int max = 100;
+    };
+
+    // 使用类模板表示类模板家族的 max 成员（特化与偏特化）
+    template<typename T>
+    int myMax = MyClass<T>::max;
+
+型别特征后缀 _v
+--------------------
+
+从 C++17 开始，标准库使用变量模板来对模板库中生成值的型别特征模板生成一个简称。
+
+.. code-block:: c++
+
+    namespace std {
+        template<typename T> constexpr bool is_const_v = is_const<T>::value;
+    }
+
+模板的模板参数
+=====================
+
+模板参数本身也可以是一个类模板。使用前面设计的 Stack 类模板时，我们必须显示指定元素的型别两次。
+
+.. code-block:: c++
+
+    Stack<int, std::vector<int>> vStack;
+
+而使用模板的模板参数允许你声明 **Stack** 类模板时指定容器的型别，而不用再次指定容器的元素的型别。
+
+.. code-block:: c++
+
+    Stack<int, std::vector> vStack;
+
+.. code-block:: c++
+    :linenos:
+
+    template<typename T, template<typename Elem> class Cont = std::queue>
+    class Stack {
+    private:
+        Cont<T> elems;
+
+    public:
+        void push(T const&);
+        void pop();
+        T cosnt& top() const;
+        bool empty() const {
+            return elems.empty();
+        }
+       
+
+        ...
+    }
+
