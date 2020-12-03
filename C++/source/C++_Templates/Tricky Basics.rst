@@ -292,7 +292,7 @@ C++14 引入的泛型 Lambdas 是成员模板的简捷方式。
 .. code-block:: c++
     :linenos:
 
-    template<typename T, template<typename Elem> class Cont = std::queue>
+    template<typename T, template<typename Elem> class Cont = std::deque>
     class Stack {
     private:
         Cont<T> elems;
@@ -300,12 +300,51 @@ C++14 引入的泛型 Lambdas 是成员模板的简捷方式。
     public:
         void push(T const&);
         void pop();
-        T cosnt& top() const;
+        T const& top() const;
         bool empty() const {
             return elems.empty();
         }
-       
-
         ...
-    }
+    };
 
+    // 可以省略 Elem，因为它并未使用
+    template<typename T, template<typename > class Cont = std::deque>
+    class Stack; 
+
+    // C++17 允许使用 typename 声明模板的模板参数，与使用 class 一样
+    template<typename T, template<typename> typename Cont = std::deque>
+    class Stack;
+
+    template<typename T, template<typename> class Cont = std::deque>
+    void Stack <T, Cont>::push(T const& elem) {
+        elems.push_back(elem);
+    } 
+
+.. note:: 
+
+    模板的模板参数是类模板和别名模板的占位符，但是没有函数模板和变量模板的占位符。
+
+模板的模板实参匹配
+-----------------------
+
+如果你使用上面的 Stack 类模板，你会得到编译错误，显示为模板的模板参数和模板的模板实参不兼容。
+这是因为 Cont  模板只有一个模板参数，而 std::deque 则有两个模板参数（另一个是一个 allocator， 
+它是一个默认参数）。但是在 C++17 之前，要求模板的模板参数精确匹配相应模板实参的模板参数。但是可以
+通过为模板的模板参数引入另一个模板参数解决。
+
+.. code-block:: c++
+
+    template<typename T, template<typename Elem, 
+        typename Alloc = std::allocator<Elem>> class Cont = std::deque>
+    class Stack;
+
+    // 同样也可以省略未使用的名称
+    template<typename T, template<typename Elem, 
+        typename = std::allocator<Elem>> class Cont = std::deque>
+    class Stack;
+
+    // 类外定义成员方法时，不用再次指定默认模板实参
+    template<typename T, template<typename, typename> class Cont = std::deque>
+    void Stack <T, Cont>::push(T const& elem) {
+        elems.push_back(elem);
+    } 
