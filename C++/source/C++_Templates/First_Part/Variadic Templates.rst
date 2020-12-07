@@ -177,7 +177,7 @@ C++11 为变参模板引入了一个新形式的 sizeof 操作符： ``sizeof...
 
 下面的例子使用 ``(np ->* ... ->* paths)`` 从 np 开始按照 paths 指定的路径进行遍历。
 
-.. literalinclude:: codes/basics/foldtraverse.cpp
+.. literalinclude:: ../codes/basics/foldtraverse.cpp
     :language: c++
     :linenos:
 

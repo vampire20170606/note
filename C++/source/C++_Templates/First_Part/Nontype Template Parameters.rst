@@ -10,7 +10,7 @@
 声明一个局部数组一样，当函数结束的时候，该变量所占用的内存空间也被释放了。通过对数组的大小进行参数化，从
 而将分配空间大小的权利交给了用户。
 
-.. literalinclude:: codes/stacknontype.hpp
+.. literalinclude:: ../codes/stacknontype.hpp
     :language: c++    
     :linenos:
     

@@ -8,7 +8,7 @@
 
 基于 vector 实现 **Stack** 类模板。
 
-.. literalinclude:: codes/basics/stack1.hpp
+.. literalinclude:: ../codes/basics/stack1.hpp
     :language: c++
     :linenos:
 
@@ -85,7 +85,7 @@
 在 C++17 之前，使用类模板必须显示指定模板实参。成员方法仅在被使用
 后才会被实例化，因此 ``Stack<int>`` 的 ``pop`` 方法不会被实例化。
 
-.. literalinclude:: codes/basics/stack1test.cpp
+.. literalinclude:: ../codes/basics/stack1test.cpp
     :language: c++
     :linenos:
 
@@ -349,7 +349,7 @@ Concepts
 
 与函数模板一样，你也可以给类模板添加模板参数添加默认值。
 
-.. literalinclude:: codes/basics/stack3.hpp
+.. literalinclude:: ../codes/basics/stack3.hpp
     :language: c++
     :linenos:
 
